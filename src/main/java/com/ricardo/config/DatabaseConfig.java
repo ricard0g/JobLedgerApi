@@ -2,6 +2,7 @@ package com.ricardo.config;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -11,7 +12,7 @@ public class DatabaseConfig {
     // This JdbcConnectionPool.creat() method takes three arguments: URL, User,
     // Password.
     private static final JdbcConnectionPool pool = JdbcConnectionPool.create(
-            "jdbc:h2" + System.getenv("DB_PATH") + ";DB_CLOSE_DELAY=-1",
+            "jdbc:h2:" + System.getenv("DB_PATH") + ";DB_CLOSE_DELAY=-1",
             "sa",
             "");
 
@@ -32,9 +33,14 @@ public class DatabaseConfig {
         try (Connection conn = getConnection()) {
             InputStream is = DatabaseConfig.class.getClassLoader().getResourceAsStream("schema.sql");
 
-            if (is == null) System.out.println("schema.sql not found!");
-        } catch(Exception e) {
+            if (is == null) throw new RuntimeException("schema.sql not found!");
+
+            String sql = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            conn.createStatement().execute(sql);
+        } catch (RuntimeException e) {
             System.out.println(e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read bytes from schema.sql. Error: " + e.getMessage());
         }
     }
 }
