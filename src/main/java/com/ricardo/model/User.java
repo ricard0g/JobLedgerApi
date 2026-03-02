@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 public class User {
     private long userId;
     private String userName;
-    private String password;
+    private String passwordHash;
     private String refreshToken;
     private Timestamp createdAt;
 
@@ -27,12 +27,12 @@ public class User {
         this.userName = userName;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public String getRefreshToken() {

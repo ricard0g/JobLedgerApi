@@ -57,7 +57,7 @@ public class UserRepository {
         user.setUserId(rs.getLong("user_id")); // Use of String inputs for column label should be reserved for queries that use aliases "AS" in SQL
         // statement, Index are more efficient if no aliases are being used. In this case let's leave it as it is just for better understanding of the code
         user.setUserName(rs.getString("username"));
-        user.setPassword(rs.getString("password_hash"));
+        user.setPasswordHash(rs.getString("password_hash"));
         user.setRefreshToken(rs.getString("refresh_token"));
         user.setCreatedAt(rs.getTimestamp("created_at"));
         return user;

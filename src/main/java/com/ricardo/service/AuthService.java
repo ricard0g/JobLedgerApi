@@ -1,6 +1,7 @@
 package com.ricardo.service;
 
 import com.ricardo.dto.AuthResponse;
+import com.ricardo.dto.LoginRequest;
 import com.ricardo.dto.RegisterRequest;
 import com.ricardo.model.User;
 import com.ricardo.repository.UserRepository;
@@ -36,6 +37,44 @@ public class AuthService {
             return new AuthResponse(accessToken, refreshToken);
         } catch (SQLException e) {
             throw new RuntimeException("DB_ERROR: " + e.getMessage());
+        }
+    }
+
+    public AuthResponse login(LoginRequest req) {
+        try {
+            System.out.println("Login Process Started!");
+            // 1. Lookup fot the user - same username check as register, different outcome
+            User user = userRepository.findByUserName(req.getUsername());
+
+            if (user == null) {
+                throw new RuntimeException("INVALID_CREDENTIALS");
+            }
+
+            System.out.println("User Fetched! Username --> " + user.getUserName() + " | Password Hash --> " + user.getPasswordHash());
+            // 2. Verify the password against the stored BCrypt hash
+            if (!PasswordUtil.verify(req.getPassword(), user.getPasswordHash())) {
+                throw new RuntimeException("INVALID_CREDENTIALS");
+            }
+
+            // 3. Both checks passed - generate fresh tokens
+            String accessToken = JwtUtil.generateAccessToken(user.getUserId());
+            String refreshToken = JwtUtil.generateRefreshToken();
+
+            System.out.println("Generated Access and Refresh Token:");
+            System.out.println(accessToken);
+            System.out.println(refreshToken);
+
+            // 4. Persist Refresh token in DB
+            userRepository.saveRefreshToken(user.getUserId(), refreshToken);
+
+
+            System.out.println("Successfully Saved refresh token in DB");
+
+            return new AuthResponse(accessToken, refreshToken);
+        } catch (SQLException e) {
+            throw new RuntimeException("DB_ERROR: " + e.getMessage());
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 }

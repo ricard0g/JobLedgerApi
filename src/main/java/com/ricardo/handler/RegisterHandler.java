@@ -15,7 +15,7 @@ public class RegisterHandler extends Handler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         if (!"POST".equals(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "{\"error\":\"Method not allowed. Only GET Reqeust\"}");
+            sendResponse(exchange, 405, "{\"error\":\"Method not allowed. Only POST Reqeust\"}");
             return;
         }
 
